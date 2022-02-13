@@ -128,7 +128,7 @@ zkm<-unique(zkm[,1:2])
 colnames(zkm)<-c("Scaffold","Loc")
 
 
-##working line
+##Update: medians uninformative, use means instead!
 
 #KS params
 median(na.omit(zkmanmaster$pN.KS/zkmanmaster$Non.sites))
@@ -251,6 +251,22 @@ median(na.omit((zkmanmaster$pN/zkmanmaster$Non.sites)/(zkmanmaster$pN/zkmanmaste
 azn<-(zkmanmaster$pN/zkmanmaster$Non.sites)/(zkmanmaster$pS/zkmanmaster$Syn.sites)
 sd(azn[is.finite(azn)])
 
+ma4x<-fread("/Users/Andrew/Documents/Manduca_Demography/Msexta_4x_auto_thetas.thetas",header=T,stringsAsFactors=F)
+ma4p<-exp(ma4x$Pairwise)
+mean(ma4p)
+#0.01982446
+median(ma4p)
+#5.961378e-08
+sd(ma4p)
+# 0.08171758
 
 
+ma0x<-fread("/Users/Andrew/Documents/Manduca_Demography/Msexta_0x_auto_thetas.thetas",header=T,stringsAsFactors=F)
+ma0p<-exp(ma0x$Pairwise)
+mean(ma0p)
+#0.00269443
+median(ma0p)
+#8.815626e-09
+sd(ma0p)
+#0.02969022
 

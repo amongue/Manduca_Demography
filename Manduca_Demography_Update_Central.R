@@ -21,13 +21,14 @@ plot(x=probs$K,y=(-1*probs$Prob),pch=16,ylab="L",xlab="K")
 
 #Figure 1 
 k39<- t(as.matrix(read.table("/Users/Andrew/Documents/Manduca_Demography/clumpak_2/9strap_K3.qopt")))
-k32<- t(as.matrix(read.table("/Users/Andrew/Documents/Manduca_Demography/struct/2strap_K3_J.qopt")))
+#redoing for revision
+k32<- t(as.matrix(read.table("89strap_K3_Jn.qopt")))
 #labeling by sample
 k39l<-k39
 colnames(k39l)<-c("S32","S33","S34","S35","S36","S37","S38","S39","S40","S42","S44","S45","A36","A70",
 "A71","A76","A78","A82","A84","A85","WK2","GK3","LK5","KC1")
 
-#par(mfrow=c(1,1))
+par(mfrow=c(2,1))
 barplot(k39l,space=0,main="Tobacco hornworm population structure (K=3)",ylab="Admixture proportion",col=c("indianred3","royalblue3","khaki3"),
  las=1, cex.lab=1.1,cex.axis=1.5,cex.main=2,las=2)
 abline(v=12,col="black",lwd=3.5)
@@ -38,6 +39,22 @@ mtext(side = 1, line = 3.5, at = 22, "KS", cex = 2)
 mtext(side = 3, line = 0.75, at = -0.6, "a", cex = 2)
 
 
+k32<- t(as.matrix(read.table("89strap_K3_Jn.qopt")))
+colnames(k32)<-c("S32","S33","S34","S35","S36","S37","S38","S39","S40","S42","S44","S45","A36","A70",
+"A71","A76","A78","A82","A84","A85","WK2","GK3","LK5","KC1")
+
+par(mfrow=c(1,1))
+par(mai=c(1,0.8,0.8,0.1))
+barplot(k32,space=0,main="",ylab="Admixture proportion",col=c("royalblue3","khaki3","indianred3"),
+ las=1, cex.lab=1.1,cex.axis=1.5,cex.main=2,las=2)
+abline(v=12,col="black",lwd=3.5)
+abline(v=20,col="black",lwd=3.5)
+mtext(side = 3, line = 2, at = 12, "Tobacco hornworm population structure (K=3)", cex = 2)
+mtext(side = 3, line = 0.6, at = 12, "excluding chromosome 12", cex = 2)
+mtext(side = 1, line = 3.5, at = 6, "NC", cex = 2)
+mtext(side = 1, line = 3.5, at = 16, "AZ", cex = 2)
+mtext(side = 1, line = 3.5, at = 22, "KS", cex = 2)
+mtext(side = 3, line = 0.75, at = -0.6, "c", cex = 2)
 
 
 #PCA plots
@@ -71,7 +88,7 @@ plot(tpc$rotation[,1],tpc$rotation[,2],xlab="PCA1",ylab="PCA2",main="Principle c
 text(-0.158,0.1,"NC",cex=1.8)
 text(0.2,0.13,"AZ",cex=1.8)
 text(0.07,-0.32,"KS",cex=1.8)
-mtext(side = 3, line = 0.5, at = -0.25, "c", cex = 1.7)
+mtext(side = 3, line = 0.5, at = -0.25, "d", cex = 1.7)
 #removing the inversion only makes KS and AZ more distinct, this is good!
 
 
@@ -135,6 +152,86 @@ text(c("Z","2","3","4","5","6","7","8","9","10","11","12","13","14","15",
 "16","17","18","19","20","21","22","23","24","25","26","27","28","",""),x=scaflab,y=0.95)
 text("unplaced",x=223991,y=0.95)
 legend(218991,0.6,col=c("black","blue","red"),c("NC-KS","KS-AZ","NC-AZ"),pch=c(15,18,20))
+mtext("Genomic location by chromosome",side=1,line=1,cex=1.6)
+
+#
+#read in our chromosome assignments
+library("data.table")
+setwd("/Users/Andrew/Documents/Manduca_Demography/")
+mstrans<-read.csv("msexta_JHU_assembly_chr_anchor.csv",header=T,stringsAsFactors=F)
+mstabr<-as.data.table(cbind(mstrans$Scaffold,mstrans$Synteny_liftover_Chr))
+colnames(mstabr)<-c("Scaffold","Chr")
+
+#short aside, but we know we want to subset out the Z and chr12 from our structure analyses
+#msts<-mstabr[which(mstabr$Chr!="Z"),]
+#msts<-msts[which(msts$Chr!="12"),]
+#write.table(msts$Scaffold,"JHU_noZ_no12.txt",quote=F,row.names=F,col.names=F)
+
+#read Fst data in
+anf<-fread("AZ.NC.10kbfst.txt",stringsAsFactors=F, header=T)
+kaf<-fread("KS.AZ.10kbfst.txt",stringsAsFactors=F,header=T)
+knf<-fread("KS.NC.10kbfst.txt",stringsAsFactors=F, header=T)
+
+#add chr info
+anf<-merge(anf,mstabr,by="Scaffold",all.x=T)
+anf[which(anf$Scaffold=="HiC_scaffold_31"),6]<-"2"
+anf[which(anf$Scaffold=="HiC_scaffold_25"),6]<-"26"
+anf$Chr<-factor(anf$Chr,levels=c("Z","2","3","4","5","6","7","8","9","10","11","12","13","14","15",
+"16","17","18","19","20","21","22","23","24","25","26","27","28","0","NA"))
+
+anfo<-anf[order(anf$Chr),]
+kaf<-merge(kaf,mstabr,by="Scaffold",all.x=T)
+kaf[which(kaf$Scaffold=="HiC_scaffold_31"),6]<-"2"
+kaf[which(kaf$Scaffold=="HiC_scaffold_25"),6]<-"26"
+kaf$Chr<-factor(kaf$Chr,levels=c("Z","2","3","4","5","6","7","8","9","10","11","12","13","14","15",
+"16","17","18","19","20","21","22","23","24","25","26","27","28","0","NA"))
+
+kafo<-kaf[order(kaf$Chr),]
+knf<-merge(knf,mstabr,by="Scaffold",all.x=T)
+knf[which(knf$Scaffold=="HiC_scaffold_31"),6]<-"2"
+knf[which(knf$Scaffold=="HiC_scaffold_25"),6]<-"26"
+knf$Chr<-factor(knf$Chr,levels=c("Z","2","3","4","5","6","7","8","9","10","11","12","13","14","15",
+"16","17","18","19","20","21","22","23","24","25","26","27","28","0","NA"))
+knfo<-knf[order(knf$Chr),]
+
+
+#Genome-wide Fst
+#B, L, T, R
+par(mfrow=c(2,1))
+par(mai=c(0.05,1,0.9,0.1))
+plot(1:123401,anfo$Fst[1:123401],col=rgb(255,0,0,max=255,alpha=15),ylim=c(0,1),xlab="",ylab=expression('F'[ST])
+,pch=20, xaxt='n',las=1, main = "Population differentiation across the genome",cex.main=2,xlim=c(0,132401))
+points(1:123401,kafo$Fst[1:123401],col=rgb(0,0,255,max=255,alpha=15),pch=18)
+points(1:123401,knfo$Fst[1:123401],col=rgb(0,0,0,max=255,alpha=15),pch=15)
+segments(x0=0,x1=123401,y0=0.5,y1=0.5, lty=3)
+#delimit chromosomes
+scafbreaks<-match(unique(knfo$Chr[1:123401]),knfo$Chr[1:123401])
+#we have one too many breaks because both 0 and NA are unplaced
+abline(v=scafbreaks)
+scaflab<-scafbreaks
+for(i in 1:length(unique(knfo$Chr[1:123401]))-1)
+{scaflab[i]<-((scafbreaks[i+1]-scafbreaks[i])/2) + scafbreaks[i]}
+text(c("Z","2","3","4","5","6","7","8","9","10","11","12","13","14","15",""),x=scaflab,y=0.95, cex=1.2)
+legend(123401,0.7,col=c("black","blue","red"),c("NC-KS","KS-AZ","NC-AZ"),pch=c(15,18,20))
+#mtext("Genomic location by chromosome",side=1,line=1,cex=1.6)
+
+par(mai=c(0.8,1,0.1,0.1))
+plot(123401:217379 ,anfo$Fst[123401:217379],col=rgb(255,0,0,max=255,alpha=15),ylim=c(0,1),xlab="",ylab=expression('F'[ST])
+,pch=20, xaxt='n',las=1, main = "",cex.main=2,xlim=c(123401,226379))
+points(123401:217379,kafo$Fst[123401:217379],col=rgb(0,0,255,max=255,alpha=15),pch=18)
+points(123401:217379,knfo$Fst[123401:217379],col=rgb(0,0,0,max=255,alpha=15),pch=15)
+segments(x0=0,x1=217379,y0=0.5,y1=0.5, lty=3)
+#delimit chromosomes
+scafbreaks<-match(unique(knfo$Chr[123401:217379]),knfo$Chr[123401:217379])
+#we have one too many breaks because both 0 and NA are unplaced
+scafbreaks[15]<-122222222222
+abline(v=scafbreaks+123401)
+scaflab<-scafbreaks
+for(i in 1:length(unique(knfo$Chr[123401:217379]))-1)
+{scaflab[i]<-((scafbreaks[i+1]-scafbreaks[i])/2) + scafbreaks[i]}
+text(c("16","17","18","19","20","21","22","23","24","25","26","27","28","",""),x=scaflab+123401,y=0.95, cex=1.2)
+text("unplaced",x=213991,y=0.95)
+legend(218991,0.7,col=c("black","blue","red"),c("NC-KS","KS-AZ","NC-AZ"),pch=c(15,18,20))
 mtext("Genomic location by chromosome",side=1,line=1,cex=1.6)
 
 ####Z chr Fst
