@@ -35,12 +35,15 @@ values <- extract(temps,points)
 
 df_temp <- cbind.data.frame(coordinates(points),values)
 
+###except now we don't want to show climate data because it's irrelevant, so we'll grayscale and re-title
 par(mfrow=c(1,1))
-plot(temps[[4]], ylim=c(10,60),xlim=c(-130,-50), main="",xaxt='n',yaxt='n')
+par(mai=c(1,1,1,1))
+plot(temps[[7]], ylim=c(10,60),xlim=c(-130,-50), main="",col="gray",las=1,ylab="Latitude",xlab="Longitude",cex.lab=1.8,cex.axis=1.4)
 plot(points,add=T,cex=2, pch=16)
-mtext("Climatic variation across sampling range", side=3, line=1, cex=2)
+mtext("Sampled locations", side=3, line=1, cex=2)
+abline(h=c(10,20,30,40,50,60),col=rgb(0,0,0,alpha=0.3))
+abline(v=c(-120,-110,-100,-90,-80,-70,-60),col=rgb(0,0,0,alpha=0.3))
 text(lons,lats + 2,c("n = 12", "n = 8", "n = 4"),cex=1.2)
-mtext("Seasonal temperature variation", side=4, line=0, cex=1.05, las=0)
 text(lons,lats + 4,c("NC", "AZ", "KS"),cex=1.2)
 
 
